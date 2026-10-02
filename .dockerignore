@@ -1,0 +1,9 @@
+# Data dan output tidak perlu masuk image; folder proyek di-mount saat docker run
+data/raw/
+data/processed/
+output/
+.git/
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+__pycache__/
+**/__pycache__/

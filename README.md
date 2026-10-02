@@ -1,220 +1,159 @@
 # Tugas 1: Eksplorasi dan Analisis Dataset Besar Indonesia
 
-Template untuk Tugas 1 mata kuliah Analisis Big Data. Setelah repository GitHub Classroom dibuat, ubah nama repository menjadi `tugas1-[username_github]`.
+**Pola Cuaca Per Jam di 38 Ibu Kota Provinsi Indonesia (2020–2024)**
 
-## Milestone
+| | |
+|---|---|
+| Nama | Muhammad Ega Faiz Fadlillah |
+| NIM | 202310370311047 |
+| Mata kuliah | Analisis Big Data 2026, Universitas Muhammadiyah Malang |
 
-| Tahap | Target | Bukti yang dikumpulkan |
+Proyek ini menganalisis **1.666.224 baris** data cuaca per jam (suhu, kelembapan, hujan, awan, tekanan,
+angin) dari 38 ibu kota provinsi Indonesia selama 5 tahun. Pipeline memakai **Polars** untuk profiling
+dan cleaning, **DuckDB** untuk analitik SQL dan `SUMMARIZE`, serta **Plotly** untuk 7 visualisasi interaktif.
+
+## Status Milestone
+
+| Tahap | Target | Bukti |
 |---|---|---|
-| Milestone 1 | Pertemuan 3 | Dataset >= 500 MB atau > 1 juta baris, `data/README.md`, dan `notebooks/01_data_profiling.ipynb` |
-| Milestone 2 | Pertemuan 5 | Cleaning dengan Polars dan profiling DuckDB `SUMMARIZE` |
-| Milestone 3 | Pertemuan 8 | Analisis temporal/ruang dan minimal 6 visualisasi interaktif |
-| Final | Pertemuan 10 | Minimal 5 insight, Dockerfile, dan dokumentasi akhir |
+| Milestone 1 | Pertemuan 3 | Dataset 1,67 juta baris; [`data/README.md`](data/README.md); [`src/download_data.py`](src/download_data.py); [`notebooks/01_data_profiling.ipynb`](notebooks/01_data_profiling.ipynb) |
+| Milestone 2 | Pertemuan 5 | Cleaning Polars di [`src/cleaning.py`](src/cleaning.py) dan [`notebooks/02_data_cleaning.ipynb`](notebooks/02_data_cleaning.ipynb), termasuk DuckDB `SUMMARIZE` |
+| Milestone 3 | Pertemuan 8 | Analisis spasial, musiman, antartahun, dan diurnal; 7 visualisasi Plotly di [`notebooks/03_eda_and_insights.ipynb`](notebooks/03_eda_and_insights.ipynb) |
+| Final | Pertemuan 10 | 6 insight analitik (bagian 6 notebook 03), `Dockerfile`, `.dockerignore`, `requirements.txt`, dan README ini |
 
-## Output yang Diharapkan
+## Dataset
 
-Pada final submission, repository harus menghasilkan analisis yang dapat dijalankan ulang dari awal dan memuat:
+| Item | Isi |
+|---|---|
+| Sumber | [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api), model reanalisis ERA5 (ECMWF/Copernicus) |
+| Lisensi | CC BY 4.0, atribusi: *Weather data by Open-Meteo.com* |
+| Ukuran | 1.666.224 baris × 14 kolom, 38 file CSV (172 MB); setelah cleaning menjadi 1 file Parquet 16 MB (26 kolom) |
+| Periode | 1 Jan 2020 – 31 Des 2024, per jam, waktu lokal (WIB/WITA/WIT) |
+| Unit analisis | Satu jam observasi di satu ibu kota provinsi |
 
-- Dataset Indonesia yang terdokumentasi, berukuran minimal 500 MB atau lebih dari 1 juta baris, beserta instruksi unduhnya.
-- Notebook profiling, cleaning, serta EDA yang dapat dieksekusi berurutan.
-- Cleaning dan validasi data untuk missing values, duplikasi, outlier, serta aturan kualitas yang relevan dengan dataset.
-- Analisis temporal atau spasial, minimal 6 visualisasi interaktif dengan Plotly atau Altair, dan minimal 5 insight analitik yang didukung hasil analisis.
-- Environment yang dapat direproduksi melalui `Dockerfile`, `requirements.txt`, dan petunjuk eksekusi di README.
-- Riwayat commit bertahap yang menunjukkan proses kerja pada setiap milestone.
-
-## Kaitan dengan Materi Perkuliahan
-
-| Materi | Pertemuan | Penerapan pada Tugas 1 |
-|---|:---:|---|
-| Polars dan lazy evaluation | 2 | Profiling dan transformasi dataset besar dengan `scan_*`, expressions, dan pipeline efisien. |
-| DuckDB dan format data | 3 | Query analitik serta profiling dengan `SUMMARIZE`; gunakan Parquet bila sesuai. |
-| Data quality dan cleaning | 4 | Tangani missing values, duplikasi, outlier, dan validasi data. |
-| EDA dan visualisasi | 5 | Bangun visualisasi interaktif serta rumuskan insight analitik. |
-| Time series | 6 | Terapkan analisis pola waktu atau pola spasial yang relevan dengan dataset. |
-| Dask, NLP, dan ML | 7-9 | Opsional sebagai pengembangan jika relevan dengan skala dan pertanyaan analisis. |
-| Streamlit dan Docker | 10-11 | Dokumentasikan environment Docker; dashboard Streamlit bersifat opsional untuk Tugas 1. |
-
-## Ringkasan Penilaian
-
-Nilai Tugas 1 berbobot 25% dari nilai akhir. Penilaian lengkap ada di dokumen spesifikasi tugas; ringkasannya sebagai berikut.
-
-| Aspek | Bobot | Indikator utama |
-|---|:---:|---|
-| Konsistensi commit dan GitHub workflow | 20% | Commit bertahap, pesan deskriptif, struktur repository rapi, dan pemeriksaan otomatis lulus. |
-| Data handling dengan Polars dan DuckDB | 25% | Pengolahan data besar efisien, memakai Polars dan DuckDB sesuai peran masing-masing. |
-| Cleaning dan data quality | 15% | Profiling, validasi, serta penanganan null dan outlier terdokumentasi. |
-| Visualisasi dan insight | 25% | Visualisasi interaktif informatif dan insight analitik yang didukung data. |
-| Reproduktivitas dan Docker | 15% | Dockerfile, dependency, dan instruksi eksekusi memungkinkan proyek dijalankan ulang. |
-
-Target kualitas tertinggi adalah analisis yang efisien, terdokumentasi, dapat direproduksi, dan memperlihatkan proses kerja konsisten sepanjang milestone; bukan hanya hasil akhir yang terlihat baik.
+Dokumentasi lengkap (kolom, satuan, keterbatasan, dan cara unduh) ada di [`data/README.md`](data/README.md).
+Data **tidak** di-commit ke Git; unduh ulang dengan `python src/download_data.py`.
 
 ## Struktur Repository
 
 ```text
 .
-├── .github/workflows/lint_check.yml
-├── data/README.md
+├── .github/workflows/lint_check.yml   # cek otomatis: compile src/ dan validasi JSON notebook
+├── data/
+│   ├── README.md                      # dokumentasi dataset dan cara unduh
+│   ├── raw/openmeteo/*.csv            # data mentah (diabaikan Git)
+│   └── processed/cuaca_bersih.parquet # hasil notebook 02 (diabaikan Git)
 ├── notebooks/
-│   ├── 01_data_profiling.ipynb
-│   ├── 02_data_cleaning.ipynb
-│   └── 03_eda_and_insights.ipynb
-├── output/figures/
+│   ├── 01_data_profiling.ipynb        # Milestone 1
+│   ├── 02_data_cleaning.ipynb         # Milestone 2
+│   └── 03_eda_and_insights.ipynb      # Milestone 3 + insight
+├── output/figures/*.html              # 7 visualisasi interaktif (dihasilkan notebook 03)
 ├── src/
+│   ├── config.py                      # path, pemetaan provinsi→pulau, aturan rentang fisik
+│   ├── download_data.py               # unduh data dari Open-Meteo
+│   ├── cleaning.py                    # pipeline cleaning Polars (lazy)
+│   └── viz.py                         # tema Plotly dan palet warna
+├── .dockerignore
 ├── Dockerfile
 ├── requirements.txt
 └── README.md
 ```
 
-# Tugas 1 Analisis Big Data 2026
+## Cara Menjalankan
 
-## Persiapan GitHub
+Prasyarat: Docker dan Git.
 
-### 1. Fork Repository Tugas
-
-Fork repository berikut ke akun GitHub masing-masing:
-
-https://github.com/UMM-GURU/tugas1-abd-2026.git
-
-Langkah-langkah:
-
-1. Login ke GitHub.
-2. Buka repository tugas.
-3. Klik tombol **Fork** di pojok kanan atas.
-4. Tunggu hingga GitHub membuat salinan repository ke akun Anda.
-
-Setelah selesai, Anda akan memiliki repository dengan alamat seperti:
-
-```text
-https://github.com/USERNAME-ANDA/tugas1-abd-2026.git
-```
-
----
-
-### 2. Clone Repository Hasil Fork
-
-Buka Terminal, Git Bash, atau Command Prompt lalu jalankan:
-
-```bash
-git clone https://github.com/USERNAME-ANDA/tugas1-abd-2026.git
-cd tugas1-abd-2026
-```
-
-Ganti `USERNAME-ANDA` dengan username GitHub Anda.
-
----
-
-## Menjalankan Project
-
-Pastikan Docker sudah terpasang pada komputer Anda.
-
-### Build Docker Image
+### 1. Build image
 
 ```bash
 docker build -t tugas1-bigdata .
 ```
 
-### Jalankan Container
+### 2. Jalankan container
+
+Perintah mount folder berbeda per terminal:
 
 ```bash
+# Linux / macOS / Git Bash
 docker run --rm -p 8888:8888 -v "$(pwd)":/home/jovyan/work tugas1-bigdata
 ```
 
-### Membuka JupyterLab
-
-Buka browser dan akses:
-
-http://localhost:8888/lab
-
-> **Catatan:** Konfigurasi Dockerfile menjalankan JupyterLab tanpa password atau token untuk penggunaan lokal. Jangan gunakan konfigurasi ini pada server atau jaringan publik.
-
----
-
-## Menyiapkan Dataset
-
-1. Letakkan dataset yang akan digunakan pada folder:
-
-```text
-data/raw/
+```powershell
+# Windows PowerShell
+docker run --rm -p 8888:8888 -v "${PWD}:/home/jovyan/work" tugas1-bigdata
 ```
 
-2. Buka notebook profiling atau notebook yang digunakan.
-3. Sesuaikan nilai variabel `DATA_PATH` agar mengarah ke file dataset yang Anda gunakan.
-
-Contoh:
-
-```python
-DATA_PATH = "data/raw/nama_dataset.csv"
+```bat
+:: Windows Command Prompt
+docker run --rm -p 8888:8888 -v "%cd%":/home/jovyan/work tugas1-bigdata
 ```
 
----
+Buka `http://localhost:8888/lab`.
 
-## Mengerjakan Tugas
+> **Catatan:** Dockerfile menjalankan JupyterLab tanpa password atau token untuk penggunaan lokal. Jangan
+> gunakan konfigurasi ini di server atau jaringan publik.
 
-1. Baca seluruh instruksi yang terdapat pada notebook.
-2. Kerjakan setiap bagian sesuai perintah.
-3. Simpan perubahan secara berkala.
+### 3. Unduh dataset (sekali saja)
 
----
-
-## Commit Perubahan
-
-Setelah tugas selesai dikerjakan, simpan hasil pekerjaan ke Git menggunakan perintah berikut:
+Di JupyterLab, buka **File → New → Terminal**, lalu jalankan:
 
 ```bash
-git add .
-git commit -m "Menyelesaikan Tugas 1 Analisis Big Data"
+python src/download_data.py
 ```
 
-Anda dapat mengganti pesan commit sesuai kebutuhan.
+Proses ini memakan waktu sekitar 10–15 menit dan menghasilkan 38 file di `data/raw/openmeteo/`.
 
----
+### 4. Jalankan notebook secara berurutan
 
-## Push ke Repository GitHub
-
-Kirim hasil pekerjaan ke repository GitHub milik Anda:
+Buka dan jalankan `01` → `02` → `03` di JupyterLab (**Run → Run All Cells**), atau jalankan semuanya
+sekaligus dari terminal:
 
 ```bash
-git push origin main
+jupyter nbconvert --to notebook --execute --inplace \
+    notebooks/01_data_profiling.ipynb \
+    notebooks/02_data_cleaning.ipynb \
+    notebooks/03_eda_and_insights.ipynb
 ```
 
-Apabila branch utama bernama `master`, gunakan:
+Notebook 02 menghasilkan `data/processed/cuaca_bersih.parquet` yang dibutuhkan notebook 03. Visualisasi
+interaktif tersimpan di `output/figures/` dan bisa dibuka langsung di browser.
 
-```bash
-git push origin master
-```
+## Pembagian Peran Polars dan DuckDB
 
----
+| Tugas | Alat | Alasan |
+|---|---|---|
+| Membaca 38 CSV, profiling, validasi | Polars `scan_csv` (lazy) | Query plan dioptimalkan; hanya kolom yang dibutuhkan yang dibaca |
+| Pipeline cleaning (tipe, deduplikasi, imputasi, flag outlier, fitur) | Polars expressions + window `over()` | Transformasi baris dan per-grup efisien, mudah diuji per langkah |
+| Profiling data bersih | DuckDB `SUMMARIZE` | Statistik semua kolom dalam satu perintah |
+| Agregasi analitik (hujan tahunan, musiman, diurnal, anomali) | DuckDB SQL di atas Parquet | SQL ringkas untuk `GROUP BY`/`CTE`, langsung membaca Parquet |
+| Pivot, korelasi, anomali dengan window function | Polars | Reshaping dan operasi DataFrame lanjutan |
 
-## Verifikasi Pengumpulan
+## Ringkasan Hasil
 
-1. Buka repository GitHub milik Anda.
-2. Pastikan file yang telah dikerjakan sudah muncul.
-3. Pastikan terdapat minimal satu commit hasil pekerjaan Anda.
-4. Salin URL repository Anda untuk keperluan penilaian jika diminta dosen.
+**Kualitas data:** 0 missing value, 0 duplikat, 0 nilai di luar rentang fisik, dan 38 provinsi × 43.848 jam
+tanpa celah. Pipeline tetap disusun defensif dan diuji pada data yang sengaja dirusak. Outlier diberi flag,
+tidak dihapus: 345 jam suhu, 1.632 jam hujan ekstrem, dan 1.068 jam angin.
 
-Contoh URL repository:
+**Insight utama** (detail dan angka pendukung ada di notebook 03 bagian 6):
 
-```text
-https://github.com/USERNAME-ANDA/tugas1-abd-2026
-```
-
----
-
-## Menjalankan Project
-
-```bash
-docker build -t tugas1-bigdata .
-docker run --rm -p 8888:8888 -v "$(pwd)":/home/jovyan/work tugas1-bigdata
-```
-
-Buka JupyterLab pada `http://localhost:8888/lab`. Konfigurasi Dockerfile menjalankan JupyterLab tanpa password atau token untuk penggunaan lokal. Jangan gunakan konfigurasi ini pada server atau jaringan publik. Letakkan dataset pada `data/raw/`, lalu sesuaikan `DATA_PATH` di notebook profiling.
+1. **Ketimpangan hujan 3,5×**: Maluku Utara 4.903 mm/tahun vs NTT 1.407 mm/tahun; sabuk kering di
+   NTT–NTB–Jawa Timur–Merauke.
+2. **Tiga pola musim**: Bali–Nusa Tenggara menerima 75,7% hujan pada Nov–Mar (monsun tegas), Sumatera,
+   Kalimantan, dan Sulawesi relatif merata, sedangkan Maluku memuncak pada bulan Mei.
+3. **2023 kering serentak**: 36 dari 38 provinsi di bawah rata-rata, dan hujan Juli–Oktober di Jawa turun
+   80% (139 mm vs 712 mm pada 2022), bertepatan dengan El Niño.
+4. **Hujan konvektif siang hari**: 51,2% hujan turun pukul 12.00–17.59 waktu lokal; puncak pukul 14–15
+   di semua pulau.
+5. **Periode hangat berkelanjutan**: seluruh 18 bulan sejak Juli 2023 di atas normal; suhu rata-rata
+   2024 mencapai 27,5 °C vs 26,9 °C pada 2022.
+6. **Ketinggian menentukan suhu**: korelasi suhu–tekanan r = 0,9, suhu–lintang r = −0,1; Wamena 20,3 °C.
 
 ## Aturan Teknis
 
-- Gunakan Polars untuk manipulasi data dan DuckDB untuk analitik SQL.
-- Dataset harus minimal 500 MB atau lebih dari 1 juta baris.
-- Jangan commit file data besar; simpan instruksi unduhan dan sumber data pada `data/README.md`.
-- Gunakan commit bertahap dan pesan yang jelas, misalnya `feat: add initial dataset profiling`.
+- Polars dipakai untuk manipulasi data dan DuckDB untuk analitik SQL.
+- Dataset > 1 juta baris (1.666.224).
+- Data besar tidak di-commit (lihat `.gitignore`); instruksi unduh ada di `data/README.md`.
+- Commit dilakukan bertahap per milestone dengan pesan yang jelas.
 
 ## Integritas Akademik dan Penggunaan AI
 
@@ -227,10 +166,18 @@ Buka JupyterLab pada `http://localhost:8888/lab`. Konfigurasi Dockerfile menjala
 
 ## AI Disclosure Statement
 
-Isi bagian ini sebelum pengumpulan akhir.
+> Alat AI yang digunakan: Claude (Anthropic).
+>
+> Bagian yang dibantu: pencarian dan pemilihan dataset, script unduh data (`src/download_data.py`),
+> pipeline cleaning (`src/cleaning.py`), penyusunan notebook 01–03 beserta visualisasi dan narasi insight,
+> serta dokumentasi README.
+>
+> Verifikasi yang dilakukan: [ISI SENDIRI — misalnya: menjalankan ulang seluruh notebook di Docker,
+> mencocokkan angka insight dengan output sel, membaca dokumentasi Polars/DuckDB/Open-Meteo, dan memahami
+> setiap cell].
 
-> Alat AI yang digunakan: [nama alat].
->
-> Bagian yang dibantu: [contoh: penjelasan error Polars atau review dokumentasi].
->
-> Verifikasi yang dilakukan: [contoh: menjalankan ulang kode, memeriksa dokumentasi resmi, dan memahami setiap cell].
+## Sumber dan Atribusi
+
+- Weather data by [Open-Meteo.com](https://open-meteo.com/), CC BY 4.0. Zippenfenig, P. (2023). *Open-Meteo.com Weather API*. Zenodo. https://doi.org/10.5281/ZENODO.7970649
+- Hersbach, H. et al. (2023). *ERA5 hourly data on single levels from 1940 to present*. Copernicus Climate Change Service (C3S). https://doi.org/10.24381/cds.adbb2d47
+- Iglewicz, B. & Hoaglin, D. (1993). *How to Detect and Handle Outliers*. ASQC (dasar ambang robust z-score 3,5).
